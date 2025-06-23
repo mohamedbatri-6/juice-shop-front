@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { getProducts, addToCart } from '../../lib/api'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
+  const [message, setMessage] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -24,29 +24,33 @@ export default function ProductsPage() {
     const token = localStorage.getItem('token')
     try {
       await addToCart(id, 1, token)
-      setSuccess('Produit ajouté !')
-      setTimeout(() => setSuccess(null), 2000)
+      setMessage('Produit ajouté au panier')
+      setTimeout(() => setMessage(null), 2000)
     } catch {
-      setError("Erreur d'ajout")
+      setMessage("Erreur")
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Produits</h1>
-      {success && <p className="text-green-600 mb-2">{success}</p>}
-      {error && <p className="text-red-500 mb-2">{error}</p>}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Produits</h1>
+        <Link href="/cart" className="bg-green-500 text-white px-4 py-2 rounded">Mon panier</Link>
+      </div>
+      
+      {message && <p className="mb-4 p-2 bg-blue-100 text-blue-800 rounded">{message}</p>}
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {products.map(p => (
-          <div key={p.id} className="bg-white shadow rounded p-4">
-            <h2 className="text-lg font-bold">{p.name}</h2>
-            <p>{p.description}</p>
-            <p className="text-blue-600 font-semibold">{p.price} €</p>
+          <div key={p.id} className="border border-gray-200 p-4 rounded">
+            <h3 className="font-bold">{p.name}</h3>
+            <p className="text-gray-600 text-sm mb-2">{p.description}</p>
+            <p className="text-lg font-bold text-blue-600 mb-3">{p.price} €</p>
             <button
-              className="mt-2 bg-green-600 text-white px-4 py-1 rounded"
               onClick={() => handleAddToCart(p.id)}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
             >
-              Ajouter au panier
+              Ajouter
             </button>
           </div>
         ))}

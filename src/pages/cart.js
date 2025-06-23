@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getCart, createOrder } from '../../lib/api'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 export default function CartPage() {
   const [cart, setCart] = useState([])
@@ -24,33 +25,44 @@ export default function CartPage() {
     const productIds = cart.map(item => item.product.id)
     try {
       await createOrder(productIds, token)
-      setMessage('Commande passée avec succès !')
+      setMessage('Commande validée !')
       setCart([])
     } catch {
-      setMessage("Erreur lors de la commande.")
+      setMessage("Erreur lors de la commande")
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Mon panier</h1>
-      {message && <p className="mb-4 text-center">{message}</p>}
-      <div className="space-y-4">
-        {cart.map(item => (
-          <div key={item.id} className="bg-white p-4 shadow rounded">
-            <p className="font-semibold">Produit ID : {item.product.id}</p>
-            <p>Quantité : {item.quantity}</p>
-            <p className="text-sm text-gray-500">Ajouté le : {new Date(item.createdAt).toLocaleString()}</p>
-          </div>
-        ))}
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Mon panier</h1>
+        <Link href="/products" className="bg-blue-500 text-white px-4 py-2 rounded">Continuer les achats</Link>
       </div>
-      {cart.length > 0 && (
-        <button
-          onClick={handleOrder}
-          className="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Passer la commande
-        </button>
+      
+      {message && <p className="mb-4 p-2 bg-green-100 text-green-800 rounded">{message}</p>}
+      
+      {cart.length === 0 ? (
+        <p className="text-gray-500">Votre panier est vide</p>
+      ) : (
+        <>
+          <div className="space-y-3 mb-6">
+            {cart.map(item => (
+              <div key={item.id} className="border border-gray-200 p-4 rounded flex justify-between">
+                <div>
+                  <p className="font-bold">Produit #{item.product.id}</p>
+                  <p className="text-sm text-gray-600">Quantité: {item.quantity}</p>
+                </div>
+                <p className="text-sm text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</p>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={handleOrder}
+            className="bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600"
+          >
+            Passer la commande
+          </button>
+        </>
       )}
     </div>
   )
